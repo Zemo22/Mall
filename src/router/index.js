@@ -8,6 +8,7 @@ const Home = () => import('../view/home/Home')
 const Category = () => import('../view/category/Category')
 const Cart = () => import('../view/cart/Cart')
 const Profile = () => import('../view/profile/Profile')
+const Detail = () => import('../view/detail/Detail')
 
 const routes = [
   {
@@ -29,6 +30,10 @@ const routes = [
   {
     path: '/profile',
     component: Profile
+  },
+  {
+    path: '/detail/:iid',
+    component: Detail
   }
 ]
 

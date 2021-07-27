@@ -1,21 +1,27 @@
 <template>
  <div id="home">
    <nav-bar class="home-nav"><div slot="center">Shopping Mall</div> </nav-bar>
+   <tab-control ref="tabControl1"
+                :titles="['Popular','New','Choice']"
+                @tabClick="tabClick"
+                class="tab-control"
+                v-show="isTapFixed"
+   />
    <scroll class="content" ref="scroll"
            :probe-type="3" @scroll="contentScroll"
            :pull-up-load="true" @pullingUp="loadMore"
    >
-     <home-swiper :banners="banners"></home-swiper>
+     <home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad"></home-swiper>
      <recommend-view :recommends="recommends"/>
      <feature-view></feature-view>
-     <tab-control class="tab-control"
+     <tab-control ref="tabControl"
                   :titles="['Popular','New','Choice']"
                   @tabClick="tabClick"
 
      />
      <goods-list :goods="showGoods"></goods-list>
    </scroll>
-   <back-top @click.native="backClick" v-show="isBackToTOp"></back-top>
+   <back-top @click.native="backClick" v-show="isBackToTop"></back-top>
  </div>
 </template>
 
@@ -57,14 +63,23 @@ export default {
         'sell': {page: 0,list: []},
       },
       currentType: 'pop',
-      isBackToTOp: false,
+      isBackToTop: false,
+      tabOffsetTop: 0,
+      isTapFixed: false,
+      saveY: 0
     }
   },
   computed:{
     showGoods(){
       return this.goods[this.currentType].list
-    }
+    },
 
+  },
+  activated(){
+    this.$refs.scroll.scrollTo(0,this.saveY,10)
+  },
+  deactivated(){
+    this.saveY = this.$refs.scroll.getScrollY()
   },
   created() {
 
@@ -72,6 +87,9 @@ export default {
     this.getHomeMultidata()
 
     //2. request goods data
+
+  },
+  mounted() {
     this.getHomeGoods('pop')
     this.getHomeGoods('new')
     this.getHomeGoods('sell')
@@ -95,6 +113,8 @@ export default {
           this.currentType = 'sell'
           break
       }
+      this.$refs.tabControl.currentIndex = index
+      this.$refs.tabControl1.currentIndex = index
     },
 
     //Click event for back to top
@@ -102,15 +122,23 @@ export default {
       this.$refs.scroll.scrollTo(0,0);
     },
 
-    //Show event for back top button
     contentScroll(position){
-      this.isBackToTOp = -(position.y) > 1000
+      //Judge  for back top button is showed
+      this.isBackToTop = -(position.y) > 1000
+
+      // Judge for Tap fixed(positon: fiixed)
+      this.isTapFixed = -(position.y) > this.tabOffsetTop
     },
 
     //Pull up event for loading more
     loadMore(){
       this.getHomeGoods(this.currentType)
       this.$refs.scroll.scroll.refresh();
+    },
+
+    //Event for OffestTop
+    swiperImageLoad(){
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
     },
 
     /**
@@ -140,25 +168,20 @@ export default {
 
 <style scoped>
 #home{
-  padding-top: 44px;
+  /*padding-top: 44px;*/
   height: 100vh;
 }
 .home-nav{
   background-color: var(--color-tint);
   color: white;
 
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 9;
+  /*position: fixed;*/
+  /*left: 0;*/
+  /*right: 0;*/
+  /*top: 0;*/
+  /*z-index: 9;*/
 }
 
-.tab-control{
-  position: sticky;
-  top: 44px;
-  z-index: 9;
-}
 
 /*.content{*/
 /*  height: calc(100% - 93px);*/
@@ -172,6 +195,11 @@ export default {
   bottom: 49px;
   left: 0;
   right: 0;
+}
+
+.tab-control{
+  position: relative;
+  z-index: 9;
 }
 
 </style>
