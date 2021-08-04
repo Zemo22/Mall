@@ -27,13 +27,14 @@ export default {
   },
   data(){
     return{
-      titles: ["Proudct","Desc","Comm","Recom"],
+      titles: ["Proudct","Comm","Desc","Recom"],
       currentIndex: 0,
     }
   },
   methods: {
     titleClick(index){
       this.currentIndex = index
+      this.$emit('titleClick',index)
     },
     backClick(){
       this.$router.back()

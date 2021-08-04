@@ -41,3 +41,9 @@ export class Shop {
     this.goodsCount = shopInfo.cGoods
   }
 }
+
+export function recommend(){
+  return request({
+    url: '/recommend'
+  })
+}
